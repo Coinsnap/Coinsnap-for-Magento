@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <coinsnap_payment>
+				<active>1</active>
+                <title>Bitcoin + Lightning</title>
+                <model>Coinsnap\Payment\Model\Payment</model>
+                <redirect_url>coinsnap/standard/redirect</redirect_url>                
+				<webhook_url>coinsnap/standard/webhook</webhook_url>
+				<settled_status>processing</settled_status>
+                <processing_status>processing</processing_status>
+				<expired_status>canceled</expired_status>
+                <api_url>https://app.coinsnap.io</api_url>				
+            </coinsnap_payment>
+        </payment>
+    </default>
+</config>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="coinsnap_payment" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">                              
+				<label><![CDATA[Coinsnap]]></label>				
+                <field id="active" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enable Coinsnap</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>					
+                </field>				    
+				<field id="store_id" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+					<label>Coinsnap Store ID</label>
+                </field>					
+				<field id="api_key" translate="label" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Coinsnap API Key</label>					
+                </field>												 
+				<field id="expired_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="14" translate="label" type="select">
+					<label>Expired payment order status</label>
+					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+				</field>
+                <field id="settled_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="14" translate="label" type="select">
+					<label>Settled payment order status</label>
+					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+				</field>                
+				<field id="processing_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="15" translate="label" type="select">
+					<label>Processing payment order status</label>
+					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+				</field>	
+				<field id="sort_order" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
