@@ -12,9 +12,11 @@ Magento version: 2.4
 
 3. Run following commands in shell (using SSH-client) from website root folder:
 
-php  bin/magento module:enable Coinsnap_Payment
-php  bin/magento setup:upgrade
-php  bin/magento setup:di:compile
+	php  bin/magento module:enable Coinsnap_Payment
+
+	php  bin/magento setup:upgrade
+
+	php  bin/magento setup:di:compile
 
 4. Login in Magento admin panel
 
