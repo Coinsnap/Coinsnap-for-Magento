@@ -97,7 +97,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             $logger			
         );
 		
-		if (!defined('COINSNAP_SERVER_PATH'))	define( 'COINSNAP_SERVER_PATH', 'stores' );  
+	if (!defined('COINSNAP_SERVER_PATH'))	define( 'COINSNAP_SERVER_PATH', 'stores' );
+        if (!defined('COINSNAP_REFERRAL_CODE'))	define( 'COINSNAP_REFERRAL_CODE', 'D13456' );
 	    $this->helper = $helper;
         $this->orderSender = $orderSender;
         $this->httpClientFactory = $httpClientFactory;
@@ -213,7 +214,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 			$buyerEmail,
 			$buyerName, 
 			$redirectUrl,
-			'',     
+			COINSNAP_REFERRAL_CODE,     
 			$metadata,
 			$checkoutOptions
 		);
