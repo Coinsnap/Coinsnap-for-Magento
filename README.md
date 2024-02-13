@@ -32,6 +32,21 @@ Find the “Stores” section on the left-hand side of the Magento login page an
 #### (2) Access to the configuration ####
 In the “Stores” section, search for the “Configuration” subsection. Click on it to continue.
 
-![](https://github.com/Coinsnap/Coinsnap-for-Magento/blob/main/assets/sales.png)
+After search for the “Sales” category in the “Configuration” section and select it. Now enter your login details in your Coinsnap app and go to the settings.
 
-Search for the “Sales” category in the “Configuration” section and select it.
+In the settings, you will find the “Store settings” section, where you can retrieve your store ID and API key. Copy these login details for future use.
+
+![](https://github.com/Coinsnap/Coinsnap-for-Magento/blob/main/assets/coinsnap-store.png)
+
+#### (1) Configuration of the payment methods ####
+Navigate to the “Sales” section and search for the “Payment methods” option. Click on them.
+
+#### (2) Integration of the Coinsnap app data ####
+Enter the store ID and API key that you copied from the Coinsnap app into the corresponding fields.
+
+#### (3) Save changes ####
+Click on the “Save” button to finalise the integration of your Magento plugin with the Coinsnap app. Now you’re ready to accept Bitcoin+Lightning payments.
+
+![](https://github.com/Coinsnap/Coinsnap-for-Magento/blob/main/assets/magento-store.png)
+
+Feel free to change the other fields visible in Magento (similar to the image), but make sure that the “Title” field retains the name “Bitcoin+Lightning”.
