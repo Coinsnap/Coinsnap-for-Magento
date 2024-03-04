@@ -1,5 +1,5 @@
-![Image of Coinsnap for Magento](https://coinsnap.io/wp-content/uploads/2023/11/coinsnap-for-magento.png)
 # Coinsnap for Magento payment plugin #
+![Image of Coinsnap for Magento](https://coinsnap.io/wp-content/uploads/2023/11/coinsnap-for-magento.png)
 ## Accept Bitcoin and Lightning Payments with Magento ##
 
 == Description ==
