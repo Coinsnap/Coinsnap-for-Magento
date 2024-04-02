@@ -249,13 +249,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 			$notify_ar['payment_status'] = $status;
 			$notify_ar['order_id'] = $invoice->getData()['orderId'] ;	
 			$this->_logger->debug('Coinsnap Webhook - Order Id: '.$order_id);	
-			print_r($invoice->getData())		;
+			print_r($invoice->getData());
 	
 		}catch (\Throwable $e) {			
 			$notify_ar['payment_status'] = 'api_fail';
-			$this->_logger->debug('Coinsnap Webhook - Error: '.$e->getMessage());						
-			echo "Error";
-			exit;
+			$this->_logger->debug('Coinsnap Webhook - Error: '.$e->getMessage());
 		}
 		return $notify_ar;
 	}

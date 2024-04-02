@@ -1,24 +1,24 @@
 {
   "name": "coinsnap/payment",
-  "description": "Coinsnap Payment for Magento 2",
+  "description": "Coinsnap Payment for Magento 1.0.0",
   "type": "magento2-module",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "license": [
-    "OSL-3.0"
+    "MIT"
   ],
   "require": {
-    "php": "~5.5.0|~5.6.0",
-    "magento/magento-composer-installer": "*",
-    "magento/module-sales": "*",
-    "magento/module-payment": "*",
-    "magento/module-quote": "*"
+    "php": "~7.4.0|~8.0.0|~8.1.0|~8.2.0"
   },
-  "extra": {
-    "map": [
-      [
-        "*",
-        "Coinsnap/Payment"
-      ]
-    ]
+    "authors": [
+        {
+        "name": "Coinsnap",
+      	"email": "dev@coinsnap.io"
+        }
+    ],
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "Coinsnap\\Payment\\": ""
+    }
   }
 }
