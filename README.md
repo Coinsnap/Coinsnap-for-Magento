@@ -38,7 +38,7 @@ After search for the “Sales” category in the “Configuration” section and
 
 In the settings, you will find the “Store settings” section, where you can retrieve your store ID and API key. Copy these login details for future use.
 
-![](https://coinsnap.io/wp-content/uploads/2023/11/Screenshot-2023-11-30-at-10.22.46.png)
+![](https://coinsnap.io/wp-content/uploads/2023/11/Screenshot-2024-05-27-at-08.16.52.png)
 
 #### (1) Configuration of the payment methods ####
 Navigate to the “Sales” section and search for the “Payment methods” option. Click on them.
