@@ -34,7 +34,7 @@ Coinsnap is a Lightning payment provider and offers a payment gateway for proces
 
 With the Coinsnap payment plugin for Magento, shop operators can accept Bitcoin and Lightning payments from their customers. You don’t need your own Lightning node or any other technical requirements if you'd like to provide payments via Coinsnap payment gateway. Coinsnap Bitcoin and Lightning payment requires no minimum costs, no fixed contracts, no hidden costs. The Magento payment plugin from Coinsnap can be downloaded and installed free of charge.
 
-Simply register on [Coinsnap](https://app.coinsnap.io/register), enter your own Lightning address, upload and install the Coinsnap payment module in Opencart Shop backend. Add your store ID and your API key which you’ll find in your Coinsnap account, and your customers can pay you with Bitcoin Lightning right away!
+Simply register on [Coinsnap](https://app.coinsnap.io/register), enter your own Lightning address, upload and install the Coinsnap payment module in Magento backend. Add your store ID and your API key which you’ll find in your Coinsnap account, and your customers can pay you with Bitcoin Lightning right away!
 
 
 ## Features ##
