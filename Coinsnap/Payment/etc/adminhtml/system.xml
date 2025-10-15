@@ -3,33 +3,53 @@
     <system>
         <section id="payment">
             <group id="coinsnap_payment" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">                              
-				<label><![CDATA[Coinsnap]]></label>				
-                <field id="active" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label><![CDATA[Coinsnap]]></label>				
+                <field id="active" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enable Coinsnap</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="title" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Title</label>					
-                </field>				    
-				<field id="store_id" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
-					<label>Coinsnap Store ID</label>
+                </field>
+                <field id="provider" translate="label" type="select" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment provider</label>
+                    <source_model>Coinsnap\Payment\Model\Config\Source\PaymentProvider.php</source_model>
                 </field>					
-				<field id="api_key" translate="label" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+		<field id="store_id" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Coinsnap Store ID</label>
+                </field>					
+		<field id="api_key" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Coinsnap API Key</label>					
                 </field>												 
-				<field id="expired_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="14" translate="label" type="select">
-					<label>Expired payment order status</label>
-					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-				</field>
-                <field id="settled_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="14" translate="label" type="select">
-					<label>Settled payment order status</label>
-					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-				</field>                
-				<field id="processing_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="15" translate="label" type="select">
-					<label>Processing payment order status</label>
-					<source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-				</field>	
-				<field id="sort_order" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1">
+		<field id="btcpay_server_url" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>BTCPay Server URL</label>
+                </field>					
+		<field id="btcpay_store_id" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>BTCPay Store ID</label>
+                </field>					
+		<field id="btcpay_api_key" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>BTCPay API Key</label>					
+                </field>												 
+		<field id="expired_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="140" translate="label" type="select">
+                    <label>Expired payment order status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+		</field>
+                <field id="settled_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="145" translate="label" type="select">
+                    <label>Settled payment order status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>                
+                <field id="processing_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="150" translate="label" type="select">
+                    <label>Processing payment order status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+                <field id="autoredirect" translate="label" type="checkbox" sortOrder="155" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Redirect after payment</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>			
+                </field>
+                <field id="returnurl" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Return URL after payment</label>					
+                </field>												 
+		<field id="sort_order" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1">
                     <label>Sort Order</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>

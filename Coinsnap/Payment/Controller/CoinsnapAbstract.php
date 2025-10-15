@@ -1,7 +1,6 @@
 <?php
 namespace Coinsnap\Payment\Controller;
 
-
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\CsrfAwareActionInterface;
@@ -59,9 +58,6 @@ abstract class CoinsnapAbstract extends Action implements CsrfAwareActionInterfa
      * @var \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      */
     protected $resultJsonFactory;
-	
-
-
   
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

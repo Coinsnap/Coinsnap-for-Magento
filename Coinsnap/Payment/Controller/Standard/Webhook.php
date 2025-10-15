@@ -1,27 +1,28 @@
 <?php
-
 namespace Coinsnap\Payment\Controller\Standard;
 
 class Webhook extends \Coinsnap\Payment\Controller\CoinsnapAbstract {
 
     public function execute() {        		        
-            $paymentMethod = $this->getPaymentMethod();
-            $params = $paymentMethod->validateResponse();
-            $order_id =  $params['order_id'];            
+        $paymentMethod = $this->getPaymentMethod();
+        $params = $paymentMethod->validateResponse();
             
-            $function_response = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
-    
+        $order_id = $params->order_id;            
             
+        if (!empty($order_id)) {
+            $order = $this->getOrderById($order_id);
+            if (!$order->getId()){
+                echo "OK";
+                exit;
+            }              
             
-            if (!empty($order_id)) {
-              $order = $this->getOrderById($order_id);
-              $payment = $order->getPayment();
-              $paymentMethod->UpdatePaymentStatus($order, $payment, $params);
-              $function_response->setContents("OK");
-            }
-            else {
-                $function_response->setContents("Fail");
-            }
-            return $function_response;		    
-   }
+            $payment = $order->getPayment();
+            $paymentMethod->UpdatePaymentStatus($order, $payment, $params);
+            echo "OK";
+        }
+        else {
+            echo "Fail";
+        }
+        exit;			    
+    }
 }
