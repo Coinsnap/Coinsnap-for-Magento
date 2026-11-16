@@ -247,8 +247,9 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         $billing = $order->getBillingAddress();
         $order_id = (string) $order->getEntityId();
 
+        // Grand total and currency code both in the order currency, the price the customer saw.
         $amount = number_format(($order->getGrandTotal()), 2,'.', '');
-        $currency = $order->getBaseCurrencyCode();
+        $currency = $order->getOrderCurrencyCode();
         $this->updateWebhookUrl();
 
         $checkInvoice = $this->checkAmount($amount,strtoupper( $currency ));
@@ -421,7 +422,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         }
 
         // Orders placed before 1.2.0 have no record; check against what was sent then.
-        return ['amount' => number_format((float) $order->getGrandTotal(), 2, '.', ''), 'currency' => (string) $order->getBaseCurrencyCode()];
+        return ['amount' => number_format((float) $order->getGrandTotal(), 2, '.', ''), 'currency' => (string) $order->getOrderCurrencyCode()];
     }
 
     // Moves an order forward only: paid, cancelled or closed orders never change from a webhook.
