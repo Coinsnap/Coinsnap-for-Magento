@@ -18,8 +18,9 @@
 		<field id="store_id" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Coinsnap Store ID</label>
                 </field>					
-		<field id="api_key" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Coinsnap API Key</label>					
+		<field id="api_key" translate="label" type="obscure" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Coinsnap API Key</label>
+                    <backend_model>Coinsnap\Payment\Model\Config\Backend\ApiKey</backend_model>					
                 </field>												 
 		<field id="btcpay_server_url" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>BTCPay Server URL</label>
@@ -27,8 +28,9 @@
 		<field id="btcpay_store_id" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>BTCPay Store ID</label>
                 </field>					
-		<field id="btcpay_api_key" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>BTCPay API Key</label>					
+		<field id="btcpay_api_key" translate="label" type="obscure" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>BTCPay API Key</label>
+                    <backend_model>Coinsnap\Payment\Model\Config\Backend\BtcpayApiKey</backend_model>					
                 </field>												 
 		<field id="expired_status" showInDefault="1" showInStore="1" showInWebsite="1"  sortOrder="140" translate="label" type="select">
                     <label>Expired payment order status</label>

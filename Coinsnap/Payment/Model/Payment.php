@@ -59,6 +59,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     private $reinitableConfig;
     private $cache;
     private $lockManager;
+    private $encryptor;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -84,7 +85,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         WriterInterface $configWriter,
         ReinitableConfigInterface $reinitableConfig,
         CacheInterface $cache,
-        LockManagerInterface $lockManager
+        LockManagerInterface $lockManager,
+        ?\Magento\Framework\Encryption\EncryptorInterface $encryptor = null
     ) {
         parent::__construct(
             $context,
@@ -98,6 +100,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
         $this->helper = $helper;
         $this->orderSender = $orderSender;
+        $this->encryptor = $encryptor ?? \Magento\Framework\App\ObjectManager::getInstance()->get(\Magento\Framework\Encryption\EncryptorInterface::class);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;
         $this->invoiceService = $invoiceService;
@@ -145,7 +148,9 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     }
 
     public function getApiKey() {
-        return $this->isBtcpay() ? $this->getConfigData('btcpay_api_key') : $this->getConfigData('api_key');
+        $stored = (string) ($this->isBtcpay() ? $this->getConfigData('btcpay_api_key') : $this->getConfigData('api_key'));
+        // Stored encrypted since 1.2.0; a plain value is one the upgrade patch has not converted yet.
+        return preg_match('/^\d+:\d+:/', $stored) ? $this->encryptor->decrypt($stored) : $stored;
     }
 
     public function getApiUrl() {
