@@ -12,7 +12,23 @@ class BtcpayApiKey extends ApiKey
         if ($keepsStoredKey && $this->serverUrlChanged()) {
             $this->setValue('');
         }
+        $newKey = trim((string) $this->getValue());
+        if (!$keepsStoredKey && $newKey !== '') {
+            $problem = \Coinsnap\Payment\Model\Config\BtcpayKeyCheck::problem(
+                trim((string) ($this->getFieldsetDataValue('btcpay_server_url') ?? $this->storedValue('btcpay_server_url'))),
+                $newKey,
+                trim((string) ($this->getFieldsetDataValue('btcpay_store_id') ?? $this->storedValue('btcpay_store_id')))
+            );
+            if ($problem !== null) {
+                throw new \Magento\Framework\Exception\LocalizedException(__($problem));
+            }
+        }
         return parent::beforeSave();
+    }
+
+    private function storedValue(string $field): string
+    {
+        return (string) $this->_config->getValue('payment/coinsnap_payment/' . $field, $this->getScope() ?: 'default', $this->getScopeCode());
     }
 
     private function serverUrlChanged(): bool
