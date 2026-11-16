@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 use Coinsnap\Exception\BadRequestException;
 use Coinsnap\Exception\ForbiddenException;
 use Coinsnap\Exception\RequestException;

@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Http;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 use Coinsnap\Exception\ConnectException;
 use Coinsnap\Exception\RequestException;
 

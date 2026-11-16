@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class BTCPayApiKey extends AbstractClient
 {
     //  Create a URL you can send the user to. He/she will be prompted to create an API key that corresponds with your needs.

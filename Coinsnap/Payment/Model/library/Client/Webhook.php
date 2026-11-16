@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class Webhook extends AbstractClient
 {
     public function getWebhook(string $storeId, string $webhookId): \Coinsnap\Result\Webhook

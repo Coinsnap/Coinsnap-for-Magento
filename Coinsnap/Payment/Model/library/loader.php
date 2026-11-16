@@ -13,10 +13,6 @@
  * @copyright Since 2023 Coinsnap
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 spl_autoload_register(function ($className) {
     if (!defined('COINSNAP_SERVER_PATH')) {
         define('COINSNAP_SERVER_PATH', 'stores');

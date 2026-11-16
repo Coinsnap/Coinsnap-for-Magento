@@ -20,10 +20,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Result;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 use Coinsnap\Util\PreciseNumber;
 
 class Invoice extends AbstractResult

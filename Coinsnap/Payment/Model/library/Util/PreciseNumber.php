@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Util;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class PreciseNumber
 {
     /** @var string */

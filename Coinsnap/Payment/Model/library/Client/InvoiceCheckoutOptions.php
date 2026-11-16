@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class InvoiceCheckoutOptions
 {
     public const SPEED_HIGH = 'HighSpeed';

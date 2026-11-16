@@ -20,10 +20,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Exception;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class ConnectException extends CSException
 {
     public function __construct(string $curlErrorMessage, int $curlErrorCode)

@@ -1,28 +1,20 @@
 <?php
+
 namespace Coinsnap\Payment\Controller\Standard;
 
 class Webhook extends \Coinsnap\Payment\Controller\CoinsnapAbstract {
 
-    public function execute() {        		        
-        $paymentMethod = $this->getPaymentMethod();
-        $params = $paymentMethod->validateResponse();
-            
-        $order_id = $params->order_id;            
-            
-        if (!empty($order_id)) {
-            $order = $this->getOrderById($order_id);
-            if (!$order->getId()){
-                echo "OK";
-                exit;
-            }              
-            
-            $payment = $order->getPayment();
-            $paymentMethod->UpdatePaymentStatus($order, $payment, $params);
-            echo "OK";
-        }
-        else {
-            echo "Fail";
-        }
-        exit;			    
+    public function execute() {
+        $request = $this->getRequest();
+        [$status, $body] = $this->getPaymentMethod()->processWebhook(
+            (string) $request->getContent(),
+            (string) $request->getHeader('X-Coinsnap-Signature'),
+            (string) $request->getHeader('BTCPay-Sig')
+        );
+
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
+        $result->setHttpResponseCode($status);
+        $result->setContents($body);
+        return $result;
     }
 }

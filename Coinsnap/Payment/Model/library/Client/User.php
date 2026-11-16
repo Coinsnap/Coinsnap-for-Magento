@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class User extends AbstractClient
 {
     public function getCurrentUserInformation(): \Coinsnap\Result\User

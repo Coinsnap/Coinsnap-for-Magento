@@ -20,10 +20,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Exception;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class CSException extends \RuntimeException
 {
     public function __construct(string $message, int $code, \Throwable $previous = null)

@@ -17,9 +17,6 @@ declare(strict_types=1);
 
 namespace Coinsnap\Client;
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
 use Coinsnap\Result\ServerInfo;
 
 class Server extends AbstractClient
