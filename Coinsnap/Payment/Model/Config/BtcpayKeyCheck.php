@@ -28,7 +28,7 @@ class BtcpayKeyCheck
         foreach ($permissions as $permission) {
             [$policy, $scope] = array_pad(explode(':', (string) $permission, 2), 2, '');
             if (strpos($policy, 'btcpay.store.') !== 0 || $scope === '' || $scope !== $storeId) {
-                return 'The BTCPay API key may only have rights for this store. Create a key limited to store ' . $storeId . '.';
+                return 'The BTCPay API key may only have rights for the configured store. Create a key limited to that store.';
             }
             $granted[] = $policy;
         }

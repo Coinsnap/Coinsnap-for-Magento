@@ -30,6 +30,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     private const INVOICES_INFO_KEY = 'coinsnap_invoices';
     private const SECURITY_LINES_PER_MINUTE = 10;
     private const OPEN_ORDER_STATES = [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT];
+    private const WEBHOOKS_CONFIG = 'coinsnap_webhook';
+    private const LEGACY_WEBHOOK_KEY = 'legacy';
+    // Orders placed before invoices were recorded are accepted for one day after the upgrade (6.7).
+    public const INVOICE_RECORDS_SINCE_CONFIG = 'invoice_records_since';
+    private const LEGACY_ORDER_WINDOW_SECONDS = 86400;
 
     protected $_code = self::COINSNAP_PAYMENT_CODE;
 
@@ -176,15 +181,33 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         $this->reinitableConfig->reinit();
     }
 
+    // All webhooks this plugin registered, one per provider, store and webhook URL (6.4), stored encrypted.
+    private function storedWebhooks(): array {
+        $value = (string) $this->getConfigData(self::WEBHOOKS_CONFIG);
+        if (preg_match('/^\d+:\d+:/', $value)) {
+            $value = (string) $this->encryptor->decrypt($value);
+        }
+        $stored = json_decode($value, true);
+        if (!is_array($stored)) {
+            return [];
+        }
+        // Before the per-store record, one webhook was kept for the whole site.
+        return isset($stored['id']) ? [self::LEGACY_WEBHOOK_KEY => $stored] : $stored;
+    }
+
+    private function webhookKey(): string {
+        return hash('sha256', $this->getPaymentProvider() . '|' . $this->getStoreId() . '|' . $this->getWebhookUrl());
+    }
+
+    // The webhook registered for the provider, store and URL in use, or [] when there is none.
     private function storedWebhook(): array {
-        $stored = json_decode((string) $this->getConfigData('coinsnap_webhook'), true);
+        $stored = $this->storedWebhooks()[$this->webhookKey()] ?? [];
         return is_array($stored) ? $stored : [];
     }
 
     public function updateWebhookUrl(){
         try {
             if ($this->webhookExists()) {
-                $this->setConfigData('webhook_status', 'Yes');
                 return;
             }
         }
@@ -194,8 +217,22 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             return;
         }
 
-        if ($this->registerWebhook()) {
-            $this->setConfigData('webhook_status', 'Yes');
+        // Two checkouts at once must not both register a webhook and overwrite each other's secret.
+        $lock = 'coinsnap_webhook_' . $this->webhookKey();
+        if (!$this->lockManager->lock($lock, 10)) {
+            return;
+        }
+        try {
+            $this->reinitableConfig->reinit();
+            if (!$this->webhookExists() && $this->registerWebhook()) {
+                $this->setConfigData('webhook_status', 'Yes');
+            }
+        }
+        catch (\Throwable $e) {
+            $this->_logger->warning('Coinsnap: webhook check failed, keeping the current webhook');
+        }
+        finally {
+            $this->lockManager->unlock($lock);
         }
     }
 
@@ -244,6 +281,12 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     // Creates the invoice for the last order and points the response at its checkout page.
     public function getCoinsnapUrl() {
         $order = $this->_getOrder();
+        // Only an unpaid Coinsnap order of this session gets an invoice. Opening this URL again for a paid,
+        // cancelled or hand-edited order must neither create an invoice nor cancel the order (6.6, 6.8).
+        if (!$this->isPayableOrder($order)) {
+            $this->response->setRedirect($this->helper->getUrl('checkout/cart'));
+            return;
+        }
         $billing = $order->getBillingAddress();
         $order_id = (string) $order->getEntityId();
 
@@ -270,7 +313,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
         try {
             $redirectUrl = (!empty($this->getConfigData('returnurl')))? $this->getConfigData('returnurl') : $this->helper->getUrl("checkout/onepage/success");
-            $buyerName = $billing->getFirstname().' '.$billing->getLastname();
+            $buyerName = $billing ? trim($billing->getFirstname().' '.$billing->getLastname()) : '';
             $buyerEmail = $order->getCustomerEmail();
 
             $metadata = ['orderNumber' => $order_id, 'orderId' => $order_id, 'customerName' => $buyerName];
@@ -322,6 +365,15 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
         $this->rememberInvoice($order, (string) $invoiceData['id'], $camount->__toString(), $currency);
         $this->response->setRedirect($invoiceData['checkoutLink']);
+    }
+
+    private function isPayableOrder($order): bool {
+        return $order instanceof Order
+            && $order->getId()
+            && $order->getPayment() !== null
+            && $order->getPayment()->getMethod() === self::COINSNAP_PAYMENT_CODE
+            && in_array($order->getState(), self::OPEN_ORDER_STATES, true)
+            && $order->canInvoice();
     }
 
     private function failCheckout(Order $order, string $errorText): void {
@@ -394,8 +446,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             return [200, 'OK'];
         }
 
-        $this->applyDecision($decision, (int) $order->getId(), $invoiceId);
-        return [200, 'OK'];
+        // Another webhook for this order holds the lock: let the provider retry later.
+        return $this->applyDecision($decision, (int) $order->getId(), $invoiceId) ? [200, 'OK'] : [503, 'Retry'];
     }
 
     // The order this plugin created the invoice for, or null when the invoice belongs to something else.
@@ -421,21 +473,35 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             return $invoices[$invoiceId] ?? null;
         }
 
-        // Orders placed before 1.2.0 have no record; check against what was sent then.
+        // Orders placed before invoices were recorded: accepted for one day after the upgrade only, when every
+        // invoice opened before it has expired. Without a record, any invoice with this order id could pay it.
+        if (!self::isLegacyOrderAccepted((string) $order->getCreatedAt(), (int) $this->getConfigData(self::INVOICE_RECORDS_SINCE_CONFIG), time())) {
+            return null;
+        }
         return ['amount' => number_format((float) $order->getGrandTotal(), 2, '.', ''), 'currency' => (string) $order->getOrderCurrencyCode()];
     }
 
+    // $createdAt is the order's created_at, which Magento stores in UTC.
+    public static function isLegacyOrderAccepted(string $createdAt, int $recordsSince, int $now): bool {
+        $created = $createdAt !== '' ? strtotime($createdAt . ' UTC') : false;
+        return $recordsSince > 0
+            && $created !== false
+            && $created < $recordsSince
+            && $now <= $recordsSince + self::LEGACY_ORDER_WINDOW_SECONDS;
+    }
+
     // Moves an order forward only: paid, cancelled or closed orders never change from a webhook.
-    private function applyDecision(string $decision, int $orderId, string $invoiceId): void {
+    // False when the order is locked by another webhook, so this one must be retried.
+    private function applyDecision(string $decision, int $orderId, string $invoiceId): bool {
         if ($decision === InvoiceDecision::NONE) {
             $this->logInfo('no change', $invoiceId);
-            return;
+            return true;
         }
 
         $lock = 'coinsnap_order_'.$orderId;
         if (!$this->lockManager->lock($lock, 10)) {
-            $this->logInfo('busy', $invoiceId);
-            return;
+            $this->logInfo('retry: order busy', $invoiceId);
+            return false;
         }
         try {
             // Reload inside the lock, so a parallel webhook's changes are seen.
@@ -462,6 +528,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         finally {
             $this->lockManager->unlock($lock);
         }
+        return true;
     }
 
     private function markPaid(Order $order, string $invoiceId): void {
@@ -521,17 +588,33 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             return false;
         }
 
+        $all = $this->storedWebhooks();
         $previous = $this->storedWebhook();
-        $this->setConfigData('coinsnap_webhook', json_encode([
+        unset($all[self::LEGACY_WEBHOOK_KEY]);
+        $all[$this->webhookKey()] = [
             'id' => $webhook['id'],
             'secret' => $webhook['secret'],
             'url' => $webhook['url'] ?? $this->getWebhookUrl(),
-        ]));
+        ];
+        $this->setConfigData(self::WEBHOOKS_CONFIG, $this->encryptor->encrypt((string) json_encode($all)));
 
-        // Remove the webhook this one replaces, so its old secret stops being used.
-        if (!empty($previous['id']) && $previous['id'] !== $webhook['id']) {
+        // Remove the webhooks this one replaces, so their old secrets stop being used. Earlier versions
+        // registered the same URL without keeping the secret; every event sent there would be rejected.
+        $replaced = !empty($previous['id']) && $previous['id'] !== $webhook['id'] ? [(string) $previous['id']] : [];
+        try {
+            foreach ($whClient->getWebhooks($this->getStoreId()) as $existing) {
+                $data = $existing->getData();
+                if (($data['url'] ?? '') === $this->getWebhookUrl() && ($data['id'] ?? '') !== $webhook['id']) {
+                    $replaced[] = (string) $data['id'];
+                }
+            }
+        }
+        catch (\Throwable $e) {
+            $this->_logger->warning('Coinsnap: webhooks could not be listed (status '.$e->getCode().')');
+        }
+        foreach (array_unique($replaced) as $id) {
             try {
-                $whClient->deleteWebhook($this->getStoreId(), (string) $previous['id']);
+                $whClient->deleteWebhook($this->getStoreId(), $id);
             }
             catch (\Throwable $e) {
                 $this->_logger->warning('Coinsnap: previous webhook could not be deleted');

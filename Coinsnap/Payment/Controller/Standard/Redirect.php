@@ -2,7 +2,9 @@
 
 namespace Coinsnap\Payment\Controller\Standard;
 
-class Redirect extends \Coinsnap\Payment\Controller\CoinsnapAbstract {
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class Redirect extends \Coinsnap\Payment\Controller\CoinsnapAbstract implements HttpGetActionInterface {
 
     // getCoinsnapUrl() sets the redirect on the shared response.
     public function execute() {
