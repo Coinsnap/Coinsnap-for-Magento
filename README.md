@@ -128,6 +128,19 @@ Use the support area in your Coinsnap merchant account or join the official [Coi
 
 ## Changelog
 
+### 1.2.0
+
+- Security: API keys are stored encrypted and shown as "******" in the admin; leave the stars to keep the stored key. A BTCPay key is cleared when the BTCPay Server URL changes. Keys saved by earlier versions are encrypted on upgrade (`bin/magento setup:upgrade`).
+- Security: Webhooks are verified with the timestamped `X-Coinsnap-Signature` header (Coinsnap) or `BTCPay-Sig` (BTCPay Server). Before, Coinsnap webhooks were not verified at all.
+- Security: The webhook reply no longer contains the invoice. Before, anyone who knew an invoice ID could read the buyer's name, email and amount.
+- Security: An order is marked paid only when the invoice is settled, was created by this plugin for that order, and matches the amount and currency the plugin asked for. Before, any invoice in the same Coinsnap store with a matching order number could mark an order paid, and orders were invoiced while the payment was still unconfirmed.
+- Security: Each order is invoiced once, and paid, cancelled or closed orders are never changed by a webhook. BTCPay invoices marked settled by hand are not accepted.
+- Security: API error details and webhook bodies are no longer written to the log or shown at checkout. Rejected webhooks are logged with a fixed reason.
+- Added: BTCPay Server support.
+- Fix: The plugin stopped every request that loaded it, because its API library contained a PrestaShop-only check.
+- Fix: The webhook is registered once and kept when the payment server cannot be reached, instead of a new one on every checkout.
+- Fix: Checkout shows an error and restores the cart when the invoice cannot be created, instead of a blank page.
+
 ### 1.0.0 — 2024-04-02
 
 - First public release.
