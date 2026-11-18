@@ -24,7 +24,7 @@ Coinsnap is **Bitcoin payment software for merchants** and a brand of **Onlinesh
 ## Requirements
 
 - **Magento 2**
-- **PHP 7.4 or newer**
+- **PHP 8.1 or newer** (Magento 2.4.4 or newer)
 - A **Coinsnap merchant account**
 
 For Bitcoin settlement, you can use a compatible Bitcoin or Lightning wallet. One option is the [Coinsnap Wallet](https://coinsnap.io/wallet/), which combines a self-custodial Bitcoin wallet with merchant and point-of-sale functionality.
@@ -94,7 +94,7 @@ Your Store ID and API key are available in your Coinsnap merchant account.
 
 ### What are the requirements for accepting Bitcoin in my Magento store?
 
-You need a Magento 2 store, PHP 7.4 or newer, and a Coinsnap merchant account. You do not need to run your own Lightning node or Bitcoin payment server.
+You need a Magento 2.4.4+ store, PHP 8.1 or newer, and a Coinsnap merchant account. You do not need to run your own Lightning node or Bitcoin payment server.
 
 ### Can customers pay with both Lightning and Bitcoin on-chain?
 
