@@ -3,11 +3,8 @@ namespace Coinsnap\Payment\Controller;
 
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
 
-abstract class CoinsnapAbstract extends Action implements CsrfAwareActionInterface
+abstract class CoinsnapAbstract extends Action
 {
     /**
      * @var \Magento\Checkout\Model\Session
@@ -170,18 +167,4 @@ abstract class CoinsnapAbstract extends Action implements CsrfAwareActionInterfa
     {
         return $this->_checkoutHelper;
     }
-    
-	public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
-	
 }
