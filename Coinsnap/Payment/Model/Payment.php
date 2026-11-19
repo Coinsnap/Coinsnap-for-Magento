@@ -65,6 +65,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     private $cache;
     private $lockManager;
     private $encryptor;
+    private $backendUrl;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -91,7 +92,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         ReinitableConfigInterface $reinitableConfig,
         CacheInterface $cache,
         LockManagerInterface $lockManager,
-        ?\Magento\Framework\Encryption\EncryptorInterface $encryptor = null
+        ?\Magento\Framework\Encryption\EncryptorInterface $encryptor = null,
+        ?\Magento\Backend\Model\UrlInterface $backendUrl = null
     ) {
         parent::__construct(
             $context,
@@ -122,6 +124,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
         $this->reinitableConfig = $reinitableConfig;
         $this->cache = $cache;
         $this->lockManager = $lockManager;
+        $this->backendUrl = $backendUrl;
     }
 
     protected function _getOrder(){
@@ -287,7 +290,6 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
             $this->response->setRedirect($this->helper->getUrl('checkout/cart'));
             return;
         }
-        $billing = $order->getBillingAddress();
         $order_id = (string) $order->getEntityId();
 
         // Grand total and currency code both in the order currency, the price the customer saw.
@@ -313,10 +315,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
         try {
             $redirectUrl = (!empty($this->getConfigData('returnurl')))? $this->getConfigData('returnurl') : $this->helper->getUrl("checkout/onepage/success");
-            $buyerName = $billing ? trim($billing->getFirstname().' '.$billing->getLastname()) : '';
-            $buyerEmail = $order->getCustomerEmail();
-
-            $metadata = ['orderNumber' => $order_id, 'orderId' => $order_id, 'customerName' => $buyerName];
+            // orderId is the order number the merchant sees; the webhook finds the order by metadata magentoOrderId.
+            $request = InvoiceData::fromOrder($order, $this->adminOrderUrl($order), $this->pluginVersion(), (string) $this->resolver->getLocale());
+            $buyerName = $request['buyerName'] !== '' ? $request['buyerName'] : null;
+            $buyerEmail = $request['buyerEmail'] !== '' ? $request['buyerEmail'] : null;
+            $metadata = $request['metadata'];
 
             if ($this->isBtcpay() && $currency !== 'BTC') {
                 $store = new \Coinsnap\Client\Store($this->getApiUrl(), $this->getApiKey());
@@ -341,7 +344,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
                 $this->getStoreId(),
                 $currency,
                 $camount,
-                $order_id,
+                $request['orderId'],
                 $buyerEmail,
                 $buyerName,
                 $redirectUrl,
@@ -365,6 +368,23 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
         $this->rememberInvoice($order, (string) $invoiceData['id'], $camount->__toString(), $currency);
         $this->response->setRedirect($invoiceData['checkoutLink']);
+    }
+
+    // Admin order page without the session secret key, which would be stale by the time it is opened.
+    private function adminOrderUrl(Order $order): string {
+        try {
+            $url = $this->backendUrl ?? \Magento\Framework\App\ObjectManager::getInstance()->get(\Magento\Backend\Model\UrlInterface::class);
+            $url->turnOffSecretKey();
+            return (string) $url->getUrl('sales/order/view', ['order_id' => $order->getEntityId(), '_nosid' => true]);
+        }
+        catch (\Throwable $e) {
+            return '';
+        }
+    }
+
+    private function pluginVersion(): string {
+        $composer = json_decode((string) @file_get_contents(dirname(__DIR__) . '/composer.json'), true);
+        return is_array($composer) && is_string($composer['version'] ?? null) ? $composer['version'] : '';
     }
 
     private function isPayableOrder($order): bool {
@@ -452,9 +472,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
     // The order this plugin created the invoice for, or null when the invoice belongs to something else.
     private function findOrder(array $invoice): ?Order {
-        $metadata = is_array($invoice['metadata'] ?? null) ? $invoice['metadata'] : [];
-        $orderId = $this->isBtcpay() ? ($metadata['orderId'] ?? '') : ($invoice['orderId'] ?? $metadata['orderId'] ?? '');
-        if (!is_scalar($orderId) || !ctype_digit((string) $orderId)) {
+        $orderId = InvoiceData::orderEntityId($invoice, $this->isBtcpay());
+        if ($orderId === '') {
             return null;
         }
 
